@@ -1,23 +1,27 @@
 package com.itech.itech_backend.model;
 
 import jakarta.persistence.*;
-import java.util.UUID;
+import lombok.*;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class VendorTaxProfile {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @OneToOne
+    @JoinColumn(name = "vendor_id", referencedColumnName = "id", nullable = false, unique = true)
     private User vendor;
 
-    private String pan;
-    private String selectedGstin;
-    private boolean tdsStatus;
-    private String itrStatus;
-
-    @Lob
-    private String allGstinsJson;
+    private String panNumber;
+    private String gstNumber;
+    private String legalName;
+    private String businessType;
+    private String status;
 }

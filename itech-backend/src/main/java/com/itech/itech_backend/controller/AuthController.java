@@ -1,11 +1,11 @@
 package com.itech.itech_backend.controller;
 
-import com.itech.itech_backend.dto.AuthResponse;
-import com.itech.itech_backend.model.User;
-import com.itech.itech_backend.repository.UserRepository;
+import com.itech.itech_backend.dto.JwtResponse;
+import com.itech.itech_backend.dto.RegisterRequestDto;
+import com.itech.itech_backend.dto.VerifyOtpRequestDto;
 import com.itech.itech_backend.service.AuthService;
-import com.itech.itech_backend.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,42 +14,59 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin
+@RequiredArgsConstructor
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @PostMapping("/register/email")
-    public String registerWithEmail(@RequestBody Map<String, String> payload) {
-        return authService.registerWithEmail(payload.get("name"), payload.get("email"));
+    @PostMapping("/register")
+    public String register(@RequestBody RegisterRequestDto dto) {
+        return authService.register(dto);
     }
-
-    @PostMapping("/register/phone")
-    public String registerWithPhone(@RequestBody Map<String, String> payload) {
-        return authService.registerWithPhone(payload.get("name"), payload.get("phone"));
+    
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody Map<String, String> loginRequest) {
+        String contact = loginRequest.get("emailOrPhone");
+        if (contact == null) {
+            contact = loginRequest.get("phone");
+        }
+        if (contact == null) {
+            contact = loginRequest.get("email");
+        }
+        
+        if (contact == null) {
+            return ResponseEntity.badRequest().body("Email or Phone is required");
+        }
+        
+        String result = authService.sendLoginOtp(contact);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> payload) {
-        String input = payload.get("emailOrPhone");
-        String otp = payload.get("otp");
-
-        boolean verified = authService.verifyOTP(input, otp);
-        if (!verified) {
-            return ResponseEntity.status(401).body("Invalid OTP!");
+    public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequestDto dto) {
+        System.out.println("hhhhhhhhh");
+        JwtResponse response = authService.verifyOtpAndGenerateToken(dto);
+        System.out.println(response);
+        if (response == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or Expired OTP!");
         }
+        return ResponseEntity.ok(response);
+    }
 
-        User user = userRepository.findByEmail(input).orElseGet(() ->
-                userRepository.findByPhone(input).orElseThrow());
-
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
-
-        return ResponseEntity.ok(new AuthResponse(token, user.getRole()));
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtpAlternate(@RequestBody VerifyOtpRequestDto dto) {
+        System.out.println("🔍 OTP Verification Request Received");
+        System.out.println("📱 Contact: " + dto.getEmailOrPhone());
+        System.out.println("🔢 OTP: " + dto.getOtp());
+        
+        JwtResponse response = authService.verifyOtpAndGenerateToken(dto);
+        
+        if (response == null) {
+            System.out.println("❌ OTP Verification Failed");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or Expired OTP!");
+        }
+        
+        System.out.println("✅ OTP Verification Successful");
+        return ResponseEntity.ok(response);
     }
 }

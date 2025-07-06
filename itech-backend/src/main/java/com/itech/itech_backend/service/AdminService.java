@@ -1,34 +1,25 @@
 package com.itech.itech_backend.service;
 
+import com.itech.itech_backend.model.User;
 import com.itech.itech_backend.repository.UserRepository;
-import com.itech.itech_backend.repository.ProductRepository;
-import com.itech.itech_backend.repository.VendorRankingRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
+@RequiredArgsConstructor
 public class AdminService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepo;
 
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private VendorRankingRepository vendorRankingRepository;
-
-    public long getTotalUsers() {
-        return userRepository.count();
+    public List<User> getAllVendors() {
+        return userRepo.findAll();
     }
 
-    public long getTotalProducts() {
-        return productRepository.count();
-    }
-
-    public long getPremiumVendors() {
-        return userRepository.findAll().stream()
-                .filter(user -> "ROLE_VENDOR_PREMIUM".equals(user.getRole()))
-                .count();
+    public User updateVendorType(Long userId, String vendorType) {
+        User user = userRepo.findById(userId).orElseThrow();
+        user.setVendorType(Enum.valueOf(com.itech.itech_backend.enums.VendorType.class, vendorType));
+        return userRepo.save(user);
     }
 }

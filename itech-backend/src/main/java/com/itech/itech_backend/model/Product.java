@@ -1,11 +1,11 @@
 package com.itech.itech_backend.model;
+
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -13,26 +13,17 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long productId;
+    private Long id;
 
     private String name;
     private String description;
-
-    private BigDecimal price;
-    private int quantity;
-    private boolean isApproved;
-
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Double price;
 
     @ManyToOne
-    @JoinColumn(name = "seller_id")
-    private User seller;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id")
     private Category category;
 
-    public void setIsApproved(boolean b) {
-    }
+    @ManyToOne
+    private User vendor; // The vendor who listed the product
+
+    private int stock;
 }

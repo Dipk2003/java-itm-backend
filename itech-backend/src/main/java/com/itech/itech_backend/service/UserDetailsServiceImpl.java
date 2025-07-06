@@ -2,27 +2,28 @@ package com.itech.itech_backend.service;
 
 import com.itech.itech_backend.model.User;
 import com.itech.itech_backend.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 
 @Service
+@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepo;
 
     @Override
-    public UserDetails loadUserByUsername(String username) {
-        User user = userRepository.findByEmail(username)
+    public UserDetails loadUserByUsername(String emailOrPhone) throws UsernameNotFoundException {
+        User user = userRepo.findByEmailOrPhone(emailOrPhone, emailOrPhone)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                "", // OTP-based auth (no password)
-                Collections.singleton(() -> user.getRole())
+                emailOrPhone,
+                "",
+                Collections.singletonList(new SimpleGrantedAuthority(user.getRole()))
         );
     }
 }

@@ -1,16 +1,28 @@
 package com.itech.itech_backend.controller;
 
-import org.springframework.http.ResponseEntity;
+import com.itech.itech_backend.enums.VendorType;
+import com.itech.itech_backend.model.User;
+import com.itech.itech_backend.service.AdminService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 @CrossOrigin
 public class AdminController {
 
-    @GetMapping("/dashboard")
-    public ResponseEntity<String> getAdminDashboard() {
-        return ResponseEntity.ok("Welcome to the Admin Dashboard");
+    private final AdminService adminService;
+
+    @GetMapping("/vendors")
+    public List<User> getAllVendors() {
+        return adminService.getAllVendors();
     }
-    //plan query like statical and all
+
+    @PutMapping("/vendor/{userId}/type")
+    public User updateVendorType(@PathVariable Long userId, @RequestParam VendorType vendorType) {
+        return adminService.updateVendorType(userId, vendorType.name());
+    }
 }

@@ -1,18 +1,22 @@
 package com.itech.itech_backend.model;
 
+import com.itech.itech_backend.enums.VendorType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.*;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
-    @Getter
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String name;
 
@@ -22,62 +26,12 @@ public class User {
     @Column(unique = true)
     private String phone;
 
-    private String role;
+    private boolean isVerified = false;
 
-    private boolean isVerified;
+    @Enumerated(EnumType.STRING)
+    private VendorType vendorType = VendorType.BASIC;
 
-    public User() {
-    }
+    private String role = "ROLE_VENDOR";
 
-    public User(String name, String email, String phone, String role, boolean isVerified) {
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.role = role;
-        this.isVerified = isVerified;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public boolean isVerified() {
-        return isVerified;
-    }
-
-    public void setVerified(boolean verified) {
-        isVerified = verified;
-    }
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

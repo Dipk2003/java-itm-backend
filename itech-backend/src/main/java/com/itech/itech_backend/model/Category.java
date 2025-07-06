@@ -1,9 +1,11 @@
 package com.itech.itech_backend.model;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -14,5 +16,4 @@ public class Category {
     private Long id;
 
     private String name;
-    private String description;
 }
