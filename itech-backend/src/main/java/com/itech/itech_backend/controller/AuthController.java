@@ -1,7 +1,9 @@
 package com.itech.itech_backend.controller;
 
 import com.itech.itech_backend.dto.JwtResponse;
+import com.itech.itech_backend.dto.LoginRequestDto;
 import com.itech.itech_backend.dto.RegisterRequestDto;
+import com.itech.itech_backend.dto.SetPasswordDto;
 import com.itech.itech_backend.dto.VerifyOtpRequestDto;
 import com.itech.itech_backend.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -24,21 +26,21 @@ public class AuthController {
         return authService.register(dto);
     }
     
+    @PostMapping("/vendor/register")
+    public String vendorRegister(@RequestBody RegisterRequestDto dto) {
+        // Ensure vendor role is set
+        dto.setRole("ROLE_VENDOR");
+        dto.setUserType("vendor");
+        return authService.register(dto);
+    }
+    
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Map<String, String> loginRequest) {
-        String contact = loginRequest.get("emailOrPhone");
-        if (contact == null) {
-            contact = loginRequest.get("phone");
-        }
-        if (contact == null) {
-            contact = loginRequest.get("email");
+    public ResponseEntity<String> login(@RequestBody LoginRequestDto loginRequest) {
+        if (loginRequest.getEmailOrPhone() == null || loginRequest.getPassword() == null) {
+            return ResponseEntity.badRequest().body("Email/Phone and Password are required");
         }
         
-        if (contact == null) {
-            return ResponseEntity.badRequest().body("Email or Phone is required");
-        }
-        
-        String result = authService.sendLoginOtp(contact);
+        String result = authService.sendLoginOtp(loginRequest);
         return ResponseEntity.ok(result);
     }
 
@@ -68,5 +70,16 @@ public class AuthController {
         
         System.out.println("✅ OTP Verification Successful");
         return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/set-password")
+    public ResponseEntity<String> setPassword(@RequestBody SetPasswordDto dto) {
+        String result = authService.setPassword(dto);
+        return ResponseEntity.ok(result);
+    }
+    
+    @GetMapping("/debug/user/{email}")
+    public ResponseEntity<String> debugUser(@PathVariable String email) {
+        return ResponseEntity.ok(authService.debugUser(email));
     }
 }

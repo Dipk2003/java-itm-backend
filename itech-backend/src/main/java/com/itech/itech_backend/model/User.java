@@ -25,12 +25,15 @@ public class User {
 
     @Column(unique = true)
     private String phone;
+    
+    private String password;
 
     private boolean isVerified = false;
 
     @Enumerated(EnumType.STRING)
     private VendorType vendorType = VendorType.BASIC;
 
+    @Builder.Default
     private String role = "ROLE_VENDOR";
 
     private LocalDateTime createdAt = LocalDateTime.now();
