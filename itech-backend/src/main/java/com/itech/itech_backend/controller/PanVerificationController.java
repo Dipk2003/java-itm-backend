@@ -140,7 +140,7 @@ public class PanVerificationController {
             if (gstNumber != null) gstNumber = gstNumber.toUpperCase().trim();
             
             // Validate vendor exists
-            User vendor = userService.getById(vendorId);
+            User vendor = userService.getUserById(vendorId).orElse(null);
             if (vendor == null) {
                 response.put("success", false);
                 response.put("message", "Vendor not found");
@@ -194,7 +194,7 @@ public class PanVerificationController {
     @GetMapping("/vendor/{vendorId}/profile")
     public ResponseEntity<VendorTaxProfile> getVendorTaxProfile(@PathVariable Long vendorId) {
         try {
-            User vendor = userService.getById(vendorId);
+            User vendor = userService.getUserById(vendorId).orElse(null);
             if (vendor == null) {
                 return ResponseEntity.notFound().build();
             }
@@ -220,7 +220,7 @@ public class PanVerificationController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            User vendor = userService.getById(vendorId);
+            User vendor = userService.getUserById(vendorId).orElse(null);
             if (vendor == null) {
                 response.put("success", false);
                 response.put("message", "Vendor not found");

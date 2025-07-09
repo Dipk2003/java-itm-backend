@@ -26,7 +26,7 @@ public class VendorDashboardController {
 
     @GetMapping("/{vendorId}/ranking")
     public VendorRanking getVendorRank(@PathVariable Long vendorId) {
-        User vendor = userService.getById(vendorId);
+        User vendor = userService.getUserById(vendorId).orElseThrow(() -> new RuntimeException("Vendor not found"));
         return rankingService.getOrCreateRanking(vendor);
     }
 
@@ -173,7 +173,7 @@ public class VendorDashboardController {
             Map<String, Object> dashboardData = new HashMap<>();
             
             // Get vendor info
-            User vendor = userService.getById(vendorId);
+            User vendor = userService.getUserById(vendorId).orElseThrow(() -> new RuntimeException("Vendor not found"));
             dashboardData.put("vendor", vendor);
             
             // Get ranking

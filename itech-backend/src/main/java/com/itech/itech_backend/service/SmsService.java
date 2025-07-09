@@ -41,11 +41,20 @@ public class SmsService {
     
     public void sendOtp(String phone, String otp) {
         try {
+            System.out.println("\n🚨🚨🚨 SMS SERVICE CALLED 🚨🚨🚨");
+            System.out.println("📞 Phone: " + phone);
+            System.out.println("🔢 OTP: " + otp);
+            System.out.println("⚙️ SMS Simulation Enabled: " + smsSimulationEnabled);
+            
             // Format phone number (add +91 for Indian numbers if not present)
             String formattedPhone = formatPhoneNumber(phone);
             String message = buildOtpSmsContent(otp);
             
+            System.out.println("📱 Formatted Phone: " + formattedPhone);
+            System.out.println("💬 Message: " + message);
+            
             if (smsSimulationEnabled) {
+                System.out.println("🔄 Calling sendSimulatedSms...");
                 sendSimulatedSms(formattedPhone, otp);
                 return;
             }
@@ -153,22 +162,26 @@ public class SmsService {
     
     private void sendSimulatedSms(String phone, String otp) {
         // Enhanced console display for development
-        System.out.println("\n" + "=".repeat(80));
-        System.out.println("📱 SIMULATED SMS SENT TO: " + phone);
-        System.out.println("Provider: Development Mode");
+        System.out.println("\n\n" + "=".repeat(80));
+        System.out.println("📱📱📱 SIMULATED SMS SENT TO: " + phone + " 📱📱📱");
+        System.out.println("Provider: Development Mode (Console Display)");
+        System.out.println("Timestamp: " + java.time.LocalDateTime.now());
         System.out.println("\n" + "-".repeat(80));
         System.out.println("SMS CONTENT:");
         System.out.println("-".repeat(80));
         System.out.println(buildOtpSmsContent(otp));
         System.out.println("-".repeat(80));
-        System.out.println("\n🔑 YOUR OTP IS: " + otp);
+        System.out.println("\n🔥🔥🔥 YOUR OTP IS: " + otp + " 🔥🔥🔥");
         System.out.println("⏰ Valid for 5 minutes only!");
         System.out.println("\n💡 To enable real SMS sending:");
         System.out.println("1. Configure SMS provider in application.properties");
         System.out.println("2. Set sms.simulation.enabled=false");
         System.out.println("3. For Indian numbers: MSG91 or Textlocal");
         System.out.println("4. For International: Twilio");
-        System.out.println("=".repeat(80) + "\n");
+        System.out.println("=".repeat(80) + "\n\n");
+        
+        // Also use System.err for better visibility in some IDEs
+        System.err.println("🚨 OTP ALERT: " + otp + " for " + phone);
         
         log.info("📱 Simulated SMS sent to: {} with OTP: {}", phone, otp);
     }

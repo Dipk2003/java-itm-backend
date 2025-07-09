@@ -94,8 +94,14 @@ public class AuthService {
                     .build());
         }
 
-        if (dto.getEmail() != null) emailService.sendOtp(dto.getEmail(), otp);
-        if (dto.getPhone() != null) smsService.sendOtp(dto.getPhone(), otp);
+        if (dto.getEmail() != null) {
+            System.out.println("📧 SENDING EMAIL OTP to: " + dto.getEmail());
+            emailService.sendOtp(dto.getEmail(), otp);
+        }
+        if (dto.getPhone() != null) {
+            System.out.println("📱 SENDING SMS OTP to: " + dto.getPhone());
+            smsService.sendOtp(dto.getPhone(), otp);
+        }
 
         return "OTP sent to your email and phone";
     }
@@ -169,9 +175,11 @@ public class AuthService {
         
         // Send OTP via email or SMS
         if (contact.contains("@")) {
+            System.out.println("📧 LOGIN: SENDING EMAIL OTP to: " + contact);
             emailService.sendOtp(contact, otp);
             return "Password verified. OTP sent to your email.";
         } else {
+            System.out.println("📱 LOGIN: SENDING SMS OTP to: " + contact);
             smsService.sendOtp(contact, otp);
             return "Password verified. OTP sent to your phone.";
         }

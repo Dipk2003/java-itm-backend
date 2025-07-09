@@ -61,7 +61,7 @@ public class TestController {
                 .email("test@example.com")
                 .phone("1234567890")
                 .password(passwordEncoder.encode("password123"))
-                .isVerified(true)
+                .verified(true)
                 .build();
                 
         userRepository.save(testUser);

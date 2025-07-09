@@ -7,13 +7,13 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user")
+@Table(name = "vendors")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class Vendors {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,25 +43,17 @@ public class User {
     }
 
     @Builder.Default
-    private String role = "ROLE_USER";
-    
-    // Vendor-specific fields (nullable for non-vendor users)
+    private String role = "ROLE_VENDOR";
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private VendorType vendorType = VendorType.BASIC;
+
     private String businessName;
     private String businessAddress;
     private String gstNumber;
     private String panNumber;
     
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private VendorType vendorType = VendorType.BASIC;
-    
-    // Admin-specific fields (nullable for non-admin users)
-    private String department;
-    private String designation;
-    
-    @Builder.Default
-    private boolean isActive = true;
-
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
