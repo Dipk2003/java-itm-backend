@@ -155,4 +155,8 @@ public class LeadService {
     public List<Lead> findDuplicateLeads(String email, String phone) {
         return leadRepository.findByCustomerEmailOrCustomerPhone(email, phone);
     }
+
+    public List<Lead> getAllLeads() {
+        return leadRepository.findAll();
+    }
 }

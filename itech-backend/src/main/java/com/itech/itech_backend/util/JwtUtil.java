@@ -21,15 +21,21 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    // ✅ Generate Token with Role
-    public String generateToken(String emailOrPhone, String role) {
+    // ✅ Generate Token with Role and User ID
+    public String generateToken(String emailOrPhone, String role, Long userId) {
         return Jwts.builder()
                 .setSubject(emailOrPhone)
                 .claim("role", role)
+                .claim("userId", userId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
                 .signWith(getSecretKey(), SignatureAlgorithm.HS512)
                 .compact();
+    }
+
+    // ✅ Generate Token with Role (backward compatibility)
+    public String generateToken(String emailOrPhone, String role) {
+        return generateToken(emailOrPhone, role, null);
     }
 
 
@@ -51,6 +57,17 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .get("role", String.class);
+    }
+
+    // ✅ Extract User ID from Token
+    public Long extractUserId(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        Object userId = claims.get("userId");
+        return userId != null ? Long.parseLong(userId.toString()) : null;
     }
 
     // ✅ Validate Token

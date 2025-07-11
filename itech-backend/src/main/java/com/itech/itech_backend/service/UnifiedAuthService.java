@@ -43,6 +43,54 @@ public class UnifiedAuthService {
         return sendRegistrationOtp(dto, user);
     }
 
+    public JwtResponse directLogin(LoginRequestDto loginRequest) {
+        System.out.println("🚀 Direct Login request for: " + loginRequest.getEmailOrPhone());
+        
+        // Find user in User table
+        Optional<User> userOpt = userRepository.findByEmailOrPhone(loginRequest.getEmailOrPhone(), loginRequest.getEmailOrPhone());
+        
+        if (!userOpt.isPresent()) {
+            System.out.println("❌ User not found");
+            return null;
+        }
+        
+        User user = userOpt.get();
+        System.out.println("✅ User found: " + user.getEmail() + ", Role: " + user.getRole());
+        
+        // Check admin access code if admin
+        if ("ADMIN".equals(user.getRole()) || "ROLE_ADMIN".equals(user.getRole())) {
+            if (loginRequest.getAdminCode() == null || !ADMIN_ACCESS_CODE.equals(loginRequest.getAdminCode())) {
+                System.out.println("❌ Invalid admin access code");
+                return null;
+            }
+        }
+        
+        // Validate password - support both plain text and BCrypt
+        if (!validatePassword(loginRequest.getPassword(), user.getPassword())) {
+            System.out.println("❌ Invalid password");
+            return null;
+        }
+        
+        System.out.println("✅ Password validated successfully");
+        
+        // Generate token directly
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
+        System.out.println("✅ Token generated successfully");
+        
+        // Create response with user info
+        return JwtResponse.builder()
+            .token(token)
+            .message("Login successful!")
+            .user(JwtResponse.UserInfo.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .role(user.getRole().replace("ROLE_", ""))
+                .isVerified(user.isVerified())
+                .build())
+            .build();
+    }
+    
     public String sendLoginOtp(LoginRequestDto loginRequest) {
         System.out.println("🔑 Unified Login OTP request for: " + loginRequest.getEmailOrPhone());
         
@@ -100,7 +148,17 @@ public class UnifiedAuthService {
         otpRepo.delete(otp);
         
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
-        return new JwtResponse(token, "Login successful!");
+        return JwtResponse.builder()
+            .token(token)
+            .message("Login successful!")
+            .user(JwtResponse.UserInfo.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .role(user.getRole().replace("ROLE_", ""))
+                .isVerified(user.isVerified())
+                .build())
+            .build();
     }
 
     // Helper methods
@@ -165,7 +223,12 @@ public class UnifiedAuthService {
     }
 
     private boolean validatePassword(String inputPassword, String storedPassword) {
-        return inputPassword != null && passwordEncoder.matches(inputPassword, storedPassword);
+        // Simple plain text password comparison - NO BCRYPT!
+        System.out.println("🔍 Debug - Input password: " + inputPassword);
+        System.out.println("🔍 Debug - Stored password: " + storedPassword);
+        boolean matches = inputPassword != null && inputPassword.equals(storedPassword);
+        System.out.println("🔍 Debug - Password match: " + matches);
+        return matches;
     }
 
     private String generateAndSendOtp(String contact, String role) {

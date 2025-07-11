@@ -23,5 +23,6 @@ public class ContactMessage {
     @Column(length = 2000)
     private String message;
 
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 }

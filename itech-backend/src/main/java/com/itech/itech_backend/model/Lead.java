@@ -34,9 +34,11 @@ public class Lead {
     private User vendor; // Vendor who owns this lead
     
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private LeadStatus status = LeadStatus.NEW;
     
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private LeadPriority priority = LeadPriority.MEDIUM;
     
     private Double estimatedValue;
@@ -47,12 +49,14 @@ public class Lead {
     @Column(length = 500)
     private String inquiryMessage;
     
+    @Builder.Default
     private LocalDateTime inquiryDate = LocalDateTime.now();
     
     private LocalDateTime lastContactDate;
     
     private LocalDateTime nextFollowUpDate;
     
+    @Builder.Default
     private LocalDateTime lastUpdated = LocalDateTime.now();
     
     private String customerCompany;

@@ -254,11 +254,21 @@ public class AuthService {
                     User refreshedUser = userRepository.findByEmailOrPhone(contact, contact).orElse(user);
                     System.out.println("🔄 Refreshed User Role: " + refreshedUser.getRole());
                     
-                    String token = jwtUtil.generateToken(refreshedUser.getEmail(), refreshedUser.getRole());
-                    System.out.println("✅ JWT Token Generated Successfully with role: " + refreshedUser.getRole());
+                    String token = jwtUtil.generateToken(refreshedUser.getEmail(), refreshedUser.getRole(), refreshedUser.getId());
+                    System.out.println("✅ JWT Token Generated Successfully with role: " + refreshedUser.getRole() + " and user ID: " + refreshedUser.getId());
                     System.out.println("🔐 Token: " + token.substring(0, 20) + "...");
 
-                    JwtResponse response = new JwtResponse(token, "OTP Verified. Login Successful!");
+                    JwtResponse response = JwtResponse.builder()
+                        .token(token)
+                        .message("OTP Verified. Login Successful!")
+                        .user(JwtResponse.UserInfo.builder()
+                            .id(refreshedUser.getId())
+                            .email(refreshedUser.getEmail())
+                            .name(refreshedUser.getName())
+                            .role(refreshedUser.getRole().replace("ROLE_", ""))
+                            .isVerified(refreshedUser.isVerified())
+                            .build())
+                        .build();
                     System.out.println("🎉 === OTP VERIFICATION SUCCESSFUL ===");
                     return response;
                     

@@ -34,12 +34,22 @@ public class User {
     @Builder.Default
     private boolean verified = false;
     
+    @Column(name = "is_verified")
+    @Builder.Default
+    private boolean isVerified = false;
+    
     public boolean isVerified() {
-        return verified;
+        return isVerified;
     }
     
     public void setVerified(boolean verified) {
         this.verified = verified;
+        this.isVerified = verified;
+    }
+    
+    public void setIsVerified(boolean isVerified) {
+        this.isVerified = isVerified;
+        this.verified = isVerified;
     }
 
     @Builder.Default

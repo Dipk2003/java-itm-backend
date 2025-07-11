@@ -5,6 +5,7 @@ import com.itech.itech_backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class UserController {
 
     // Get all users
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
@@ -58,6 +60,7 @@ public class UserController {
 
     // Get verified users
     @GetMapping("/verified")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getVerifiedUsers() {
         List<User> users = userService.getVerifiedUsers();
         return ResponseEntity.ok(users);
@@ -96,6 +99,7 @@ public class UserController {
 
     // Delete user
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         boolean deleted = userService.deleteUser(id);
         if (deleted) {

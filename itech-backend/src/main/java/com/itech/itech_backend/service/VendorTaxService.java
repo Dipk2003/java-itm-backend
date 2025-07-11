@@ -5,11 +5,15 @@ import com.itech.itech_backend.model.*;
 import com.itech.itech_backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,8 +24,19 @@ public class VendorTaxService {
     private final VendorTaxProfileRepository taxRepo;
     private final VendorGstSelectionRepository gstSelectionRepo;
     private final VendorTdsSelectionRepository tdsSelectionRepo;
-    private final QuickoApiService quickoApiService;
     private final UserService userService;
+    
+    @Autowired
+    private GstVerificationService gstVerificationService;
+    
+    @Autowired
+    private PanVerificationService panVerificationService;
+    
+    @Value("${gst.default.rates:0,5,12,18,28}")
+    private String defaultGstRates;
+    
+    @Value("${gst.validation.enabled:true}")
+    private boolean gstValidationEnabled;
 
     public VendorTaxProfile saveTaxData(User vendor, String pan, String gst, String name) {
         VendorTaxProfile profile = VendorTaxProfile.builder()
@@ -34,31 +49,59 @@ public class VendorTaxService {
     }
 
     /**
-     * Fetch GST details from Quicko API for a vendor
+     * Validate GST number format
      */
-    public Mono<QuickoGstDetailsDto> fetchVendorGstDetails(Long vendorId, String gstNumber) {
-        log.info("Fetching GST details for vendor: {} with GST: {}", vendorId, gstNumber);
-        return quickoApiService.fetchGstDetails(gstNumber)
-                .doOnNext(gstDetails -> {
-                    log.info("Successfully fetched GST details for vendor: {}", vendorId);
-                })
-                .doOnError(error -> {
-                    log.error("Error fetching GST details for vendor: {} - {}", vendorId, error.getMessage());
-                });
+    public boolean validateGstNumber(String gstNumber) {
+        if (!gstValidationEnabled) {
+            return true;
+        }
+        
+        return gstVerificationService.validateGstFormat(gstNumber);
     }
-
+    
     /**
-     * Fetch TDS details from Quicko API for a vendor
+     * Validate PAN number format
      */
-    public Mono<QuickoTdsDetailsDto> fetchVendorTdsDetails(Long vendorId, String panNumber) {
-        log.info("Fetching TDS details for vendor: {} with PAN: {}", vendorId, panNumber);
-        return quickoApiService.fetchTdsDetails(panNumber)
-                .doOnNext(tdsDetails -> {
-                    log.info("Successfully fetched TDS details for vendor: {}", vendorId);
-                })
-                .doOnError(error -> {
-                    log.error("Error fetching TDS details for vendor: {} - {}", vendorId, error.getMessage());
-                });
+    public boolean validatePanNumber(String panNumber) {
+        return panVerificationService.validatePanFormat(panNumber);
+    }
+    
+    /**
+     * Verify GST number with external API
+     */
+    public CompletableFuture<Map<String, Object>> verifyGstNumber(String gstNumber) {
+        return gstVerificationService.verifyGstNumber(gstNumber);
+    }
+    
+    /**
+     * Verify PAN number with external API
+     */
+    public CompletableFuture<Map<String, Object>> verifyPanNumber(String panNumber) {
+        return panVerificationService.verifyPanNumber(panNumber);
+    }
+    
+    /**
+     * Get GST details from external API
+     */
+    public CompletableFuture<Map<String, Object>> getGstDetails(String gstNumber) {
+        return gstVerificationService.getGstDetails(gstNumber);
+    }
+    
+    /**
+     * Get PAN details from external API
+     */
+    public CompletableFuture<Map<String, Object>> getPanDetails(String panNumber) {
+        return panVerificationService.getPanDetails(panNumber);
+    }
+    
+    /**
+     * Get available GST rates
+     */
+    public List<Double> getAvailableGstRates() {
+        return Arrays.stream(defaultGstRates.split(","))
+                .map(String::trim)
+                .map(Double::parseDouble)
+                .collect(Collectors.toList());
     }
 
     /**

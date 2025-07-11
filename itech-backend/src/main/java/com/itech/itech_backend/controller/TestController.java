@@ -67,4 +67,26 @@ public class TestController {
         userRepository.save(testUser);
         return "Test user created: test@example.com / password123";
     }
+    
+    @PostMapping("/create-vendor-user")
+    public String createVendorUser() {
+        // Check if vendor already exists
+        if (userRepository.findByEmailOrPhone("vendor@abc.com", "vendor@abc.com").isPresent()) {
+            return "Vendor user already exists: vendor@abc.com";
+        }
+        
+        User vendorUser = User.builder()
+                .name("ABC Vendor")
+                .email("vendor@abc.com")
+                .phone("9876543213")
+                .password(passwordEncoder.encode("password123"))
+                .role("ROLE_VENDOR")
+                .verified(true)
+                .businessName("ABC Company")
+                .businessAddress("123 Main Street, Mumbai, Maharashtra, 400001")
+                .build();
+                
+        userRepository.save(vendorUser);
+        return "Vendor user created: vendor@abc.com / password123";
+    }
 }

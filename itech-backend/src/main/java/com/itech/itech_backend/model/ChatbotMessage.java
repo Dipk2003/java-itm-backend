@@ -26,6 +26,7 @@ public class ChatbotMessage {
     
     private String userIp; // Optional: to track user sessions
     
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
     
     // Optional: link to user if they are logged in

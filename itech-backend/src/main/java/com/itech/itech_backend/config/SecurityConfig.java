@@ -35,13 +35,28 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/categories/**",
                                 "/products/**",
+                                "/api/products/**",
                                 "/contact/**",
                                 "/api/chatbot/**",
-                                "/test/**"
+                                "/test/**",
+                                "/api/files/**",
+                                "/api/gst/**",
+                                "/api/pan/**",
+                                "/api/vendors/**",
+                                "/vendor/csv-template",
+                                "/vendor/*/gst/*/validate",
+                                "/vendor/*/pan/*/validate",
+                                "/api/leads/**",
+                                "/api/user/**",
+                                "/api/orders/**",
+                                "/api/cart/**",
+                                "/api/upload/**",
+                                "/api/dashboard/**"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/vendor/**").hasRole("VENDOR")
-                        .requestMatchers("/user/**").hasRole("USER")
+                        .requestMatchers("/vendor/dashboard/**").hasAnyRole("VENDOR", "ADMIN")
+                        .requestMatchers("/vendor/**").hasAnyRole("VENDOR", "ADMIN")
+                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

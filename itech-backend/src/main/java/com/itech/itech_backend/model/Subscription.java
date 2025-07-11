@@ -53,8 +53,10 @@ public class Subscription {
     private LocalDateTime endDate;
     
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private SubscriptionStatus status = SubscriptionStatus.ACTIVE;
     
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
     
     public enum PlanType {

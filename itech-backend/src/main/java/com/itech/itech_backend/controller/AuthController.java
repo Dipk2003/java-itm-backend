@@ -48,7 +48,24 @@ public class AuthController {
     }
     
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequestDto loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequest) {
+        if (loginRequest.getEmailOrPhone() == null || loginRequest.getPassword() == null) {
+            return ResponseEntity.badRequest().body("Email/Phone and Password are required");
+        }
+        
+        // Try direct login first
+        JwtResponse directLogin = unifiedAuthService.directLogin(loginRequest);
+        if (directLogin != null) {
+            return ResponseEntity.ok(directLogin);
+        }
+        
+        // If direct login fails, fall back to OTP-based login
+        String result = unifiedAuthService.sendLoginOtp(loginRequest);
+        return ResponseEntity.ok(result);
+    }
+    
+    @PostMapping("/login-otp")
+    public ResponseEntity<String> loginOtp(@RequestBody LoginRequestDto loginRequest) {
         if (loginRequest.getEmailOrPhone() == null || loginRequest.getPassword() == null) {
             return ResponseEntity.badRequest().body("Email/Phone and Password are required");
         }

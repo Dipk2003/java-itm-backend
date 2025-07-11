@@ -1,22 +1,23 @@
 package com.itech.itech_backend.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
 @Builder
-public class ProductDto {
-    private String name;
+@NoArgsConstructor
+@AllArgsConstructor
+public class ExcelImportDto {
+    private String category;
+    private String subcategory;
+    private String productName;
     private String description;
-    private Double price;
-    private Double originalPrice;
-    private int stock;
-    private Long categoryId;
-    private Long vendorId;
-    
-    // Additional fields for Excel import and extended functionality
+    private BigDecimal price;
+    private BigDecimal originalPrice;
     private String brand;
     private String model;
     private String sku;
@@ -31,5 +32,9 @@ public class ProductDto {
     private BigDecimal height;
     private Boolean freeShipping;
     private BigDecimal shippingCharge;
-    private Boolean isActive;
+    
+    // Validation fields
+    private Integer rowNumber;
+    private String errorMessage;
+    private Boolean isValid;
 }
